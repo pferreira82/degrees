@@ -1,5 +1,6 @@
 import csv
 import sys
+from typing import Type
 
 from util import Node, StackFrontier, QueueFrontier
 
@@ -93,7 +94,39 @@ def shortest_path(source, target):
     """
 
     # TODO
-    raise NotImplementedError
+    # Set number of states tested and added to neighbors
+    neighbors_added = set()
+    # Initialize frontier to start at source state
+    start = Node(source, None, None)
+    frontier = QueueFrontier()
+    frontier.add(start)
+
+    # print(frontier.add(state))
+
+    while True:
+        if frontier.empty():
+            return None
+
+        # Choose a node from the frontier
+        node = frontier.remove()
+
+        # Add node to neighbors
+        neighbors_added.add(node.state)
+
+        # Add neighbors to frontier
+        for action, state in neighbors_for_person(node.state):
+            if state == target:
+                path = [(action, state)]
+                while node.parent is not None:
+                    path.append((node.action, node.state))
+                    node = node.parent
+                return path
+
+            if state not in neighbors_added:
+                child = Node(state=state, parent=node, action=action)
+                frontier.add(child)
+
+    # raise NotImplementedError
 
 
 def person_id_for_name(name):
@@ -112,7 +145,7 @@ def person_id_for_name(name):
             birth = person["birth"]
             print(f"ID: {person_id}, Name: {name}, Birth: {birth}")
         try:
-            person_id = input("Intended Person ID: ")
+            person_id = input("  Person ID: ")
             if person_id in person_ids:
                 return person_id
         except ValueError:
